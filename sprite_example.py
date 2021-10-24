@@ -4,40 +4,45 @@
 
 import pygame
 
-class BasicSPrite(pygame.sprite.Sprite):
+WHITE = (255, 255, 255)
+
+class Player(pygame.sprite.Sprite):
     
-  #This class represents the Player. It inherits from the "Sprite" class in Pygame.   
-
-  #Add instance variables here like maybe health or speed
-
-  def __init__(self, img, width, height):
-    # Call the super class constructor
-    super().__init__()
+    #This class represents the Player. It inherits from the "Sprite" class in Pygame.
     
-    #setting instance variables to receive the values passed in the constructor call
-    self.width = width
-    self.height = height
-
-    #load the image
-    self.image = pygame.image.load(img).convert_alpha()
-    #is the image the right size? I only check the width for speed's sake
-    if (self.image.get_width() != width):
-      #scale the image properly
-      self.image = pygame.transform.scale(self.image, (width, height))
+    #Color will be more important if you wanted a two player game; a Mario/Luigi type thing
+    def __init__(self, color, width, height):
+        # Call the super class constructor
+        super().__init__()
         
-    # Set the background color and set it to be transparent
-    #only need this if your image has a background
-    #self.image.set_colorkey((255, 255 ,255))
+        self.width = width
+        self.height = height
 
-    # Fetch the rectangle object that has the dimensions of the image 
-    self.rect = self.image.get_rect()
+# Pass in the color, and x and y position, width and height.
+        if (False):#using this to debug a rectangle versus the picture
+        
+            #Set the image size
+            self.image = pygame.Surface([width, height])
+            self.color = color
+            self.image.fill(WHITE)
+            # Draw the player as a rectangle!
+            pygame.draw.rect(self.image, color, [0, 0, width, height])
+        
+        else:
+            image = pygame.image.load("star_gold.png").convert_alpha()
+            #scale the image
+            self.image = pygame.transform.scale(image, (width, height))
+            
+        # Set the background color and set it to be transparent
+        #only need this if your image has a background
+        self.image.set_colorkey((255, 0 ,0))
 
-  #put all the game code in here
-  def update(self, pos, hit):
-    #added this line to allow me to put the update dunction in
-    return True
+        # Fetch the rectangle object that has the dimensions of the image 
 
-
-  def draw(self, screen):
-    screen.blit(self.image, self.rect)
-    
+        self.rect = self.image.get_rect()
+        
+    def draw(self, screen):
+      screen.blit(self.image, self.rect)
+      
+  
+      

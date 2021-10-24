@@ -1,7 +1,10 @@
 import pygame
 import random
 #Let's import the Player class
-from sprite_example import Player
+from basic_sprite import BasicSprite
+#from basic_sprite import BasicSprite
+from enemy import Enemy
+from player import Player
 import utilities
 
 p = utilities.p
@@ -25,9 +28,25 @@ screen = pygame.display.set_mode(size)
  
 pygame.display.set_caption("Dodge Ball!")
 
-#contains all the sprites in the game.
-all_sprites_list = pygame.sprite.Group() 
+#we should probably load all the images once and then ass them along
+def load_img (url, width, height):
+  image = pygame.image.load(url).convert_alpha()
+  if (image.get_width() != width):
+    #scale the image properly
+    image = pygame.transform.scale(image, (width, height))
 
+
+#contains all the sprites in the game.
+all_sprites = pygame.sprite.Group() 
+
+#contains all the enemies in the game
+enemies_group = pygame.sprite.Group()
+
+#contains the player
+player_group = pygame.sprite.GroupSingle()
+
+#contains bullets
+#bullets = 
 # Loop until the user clicks the close button.
 done = False
  
@@ -38,7 +57,10 @@ clock = pygame.time.Clock()
 
 SPEED = 5
 numCircles = 10 
+numEnemies = 10
 #circle variables
+
+enemies = []
 circlesX = []#WIDTH/2
 circlesY = []#0
 
@@ -46,18 +68,25 @@ circlesSp = []#5
 circlesSize = []#25
 
 #player variables
-playerX = WIDTH/2
-playerY = HEIGHT - 50;
+
 player_size = 50
 
-player = Player(RED, player_size, player_size)
+player_img = load_img("star_gold.png", player_size, player_size)
+#player = Player("star_gold.png", player_size, player_size)
+player = Player(player_img)
+player.setPosition([WIDTH/2,HEIGHT - 50]);
+player.add(player_group)
+player.add(all_sprites)
 
-#intialize arrays for circles
-for i in range(numCircles):
-  circlesX.append(random.randint(0, WIDTH))
-  circlesY.append(random.randint(-500, -100))
-  circlesSp.append(SPEED)
-  circlesSize.append(random.randint(15, 30))
+#intialize arrays for enemies
+for i in range(numEnemies):
+  #make the enemy 
+  enemy = Enemy('ships.png', 40, 40)
+  #add the enemy to the all sprites grout
+  #enemies.append(enemy)
+  enemy.add(all_sprites)
+  #add the enemey to the all emnemies group 
+  enemy.add(enemies_group)
 
 # -------- Main Program Loop -----------
 while not done:
@@ -67,47 +96,32 @@ while not done:
       if event.type == pygame.QUIT:
         done = True
 
-
     #clear the screen
     screen.fill(WHITE)
 
-#update the player based on input
-      #process the keys
-    pressed = pygame.key.get_pressed()
-    if pressed[pygame.K_RIGHT]:
-      playerX += 5
-    elif pressed[pygame.K_LEFT]:
-      playerX -= 5
+    #update the sprite list 
+    all_sprites.update()
 
-    #update the player sprite and shift it over center it
-    player.rect.x = playerX - player.width/2
-    player.rect.y = playerY - player.height/2
+    #get all the collisions with enemies
+    enemy_collisions = pygame.sprite.spritecollide(player, enemies_group, True)
 
-    #update the sprite list
-    all_sprites_list.update()
+    for enemy in enemy_collisions:
+      enemy.kill()
 
-    for i in range(numCircles):
-      #Update stuff
-      circlesY[i] += circlesSp[i] #move the circle down the screen
-  
-      #check stuff  
-      #if off the screen  
-      if circlesY[i] > HEIGHT + circlesSize[i]:
-        circlesY[i] = -circlesSize[i]#move to the top
-        circlesSp[i] = random.randint(SPEED-3, SPEED+3)
-        circlesX[i] = random.randint(0, WIDTH)#random x location
-      if (utilities.distance(playerX, playerY, circlesX[i],circlesY[i] )<= player_size+circlesSize[i]):
-        #p("hit"+str(i))
-        hello = 0
+    #draw all the sprites
+    #all_sprites.draw(screen)
+
+    #below does the same thing for all the ships
+    #for i in range(numCircles):
+
+     # enemies[i].update()
         
       #Draw Stuff (circles)
-      
-      pygame.draw.circle(screen, MAGENTA, (circlesX[i], circlesY[i]), circlesSize[i])
+     # enemies[i].draw(screen)
+      #pygame.draw.circle(screen, MAGENTA, (circlesX[i], circlesY[i]), circlesSize[i])
 
-    pygame.draw.circle(screen, YELLOW, (playerX, playerY), player_size*0.2)
-    #draw all the sprites
-    #all_sprites_list.draw(screen)
-    player.draw(screen)
+    player_group.draw(screen)
+    #player.draw(screen)
     # --- Render the screen.
     pygame.display.flip()
  
