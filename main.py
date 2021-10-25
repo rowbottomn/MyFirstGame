@@ -1,13 +1,20 @@
+from replit import audio
 import pygame
 import random
 #Let's import the Player class
-from basic_sprite import BasicSprite
-#from basic_sprite import BasicSprite
+
 from enemy import Enemy
 from player import Player
+from bullet import Bullet
+from spritesheet import SpriteSheet
+from explosion import Explosion
+
 import utilities
 
+#making local references to the utility functions
 p = utilities.p
+load_img = utilities.load_img
+load_imgs = utilities.load_imgs
 
 # Define some colors
 BLACK = (0, 0, 0)
@@ -27,14 +34,7 @@ size = (WIDTH, HEIGHT)
 screen = pygame.display.set_mode(size)
  
 pygame.display.set_caption("Dodge Ball!")
-
-#we should probably load all the images once and then ass them along
-def load_img (url, width, height):
-  image = pygame.image.load(url).convert_alpha()
-  if (image.get_width() != width):
-    #scale the image properly
-    image = pygame.transform.scale(image, (width, height))
-
+ 
 
 #contains all the sprites in the game.
 all_sprites = pygame.sprite.Group() 
@@ -46,7 +46,7 @@ enemies_group = pygame.sprite.Group()
 player_group = pygame.sprite.GroupSingle()
 
 #contains bullets
-#bullets = 
+bullets = pygame.sprite.Group()
 # Loop until the user clicks the close button.
 done = False
  
@@ -61,33 +61,39 @@ numEnemies = 10
 #circle variables
 
 enemies = []
-circlesX = []#WIDTH/2
-circlesY = []#0
-
-circlesSp = []#5
-circlesSize = []#25
 
 #player variables
-
 player_size = 50
 
-player_img = load_img("star_gold.png", player_size, player_size)
-#player = Player("star_gold.png", player_size, player_size)
+#to make it easier to understand I am going to load the images first and then pass them in corrected to the appropriate size.
+player_img = load_img("assets/images/ships.png", player_size, player_size)
+
 player = Player(player_img)
-player.setPosition([WIDTH/2,HEIGHT - 50]);
+player.setPosition([WIDTH/2, HEIGHT - 50]);
 player.add(player_group)
 player.add(all_sprites)
 
 #intialize arrays for enemies
+enemy_img = load_img("assets/images/enemy.png", 40, 40)
+bullet_img = load_img("assets/images/star_gold.png", 15, 15)
+
+#using an array to load all the enemies   
 for i in range(numEnemies):
   #make the enemy 
-  enemy = Enemy('ships.png', 40, 40)
+  enemy = Enemy(enemy_img)
   #add the enemy to the all sprites grout
   #enemies.append(enemy)
   enemy.add(all_sprites)
   #add the enemey to the all emnemies group 
   enemy.add(enemies_group)
 
+#load up the explosion images
+explosion_images = SpriteSheet('assets/images/explosions.png', (60, 60), (4, 4)).images
+
+blast = pygame.mixer.Sound('assets/sounds/blast.wav')
+#sound = audio.play_file('assets/sounds/blast.wav')
+
+p('set up cpompleted')
 # -------- Main Program Loop -----------
 while not done:
     # --- Main event loop
@@ -102,14 +108,24 @@ while not done:
     #update the sprite list 
     all_sprites.update()
 
-    #get all the collisions with enemies
-    enemy_collisions = pygame.sprite.spritecollide(player, enemies_group, True)
+    if (player.firing):
+      bullet = Bullet(bullet_img, player);
+      bullet.add(bullets)
+      bullet.add(all_sprites)
+      player.firing = False;
 
+    #get all the collisions with enemies
+    enemy_collisions = pygame.sprite.groupcollide(enemies_group,bullets, False, True, None)
+    
     for enemy in enemy_collisions:
+      explosion = Explosion(explosion_images, enemy)
+      explosion.add(all_sprites)
+      blast.play()
+
       enemy.kill()
 
     #draw all the sprites
-    #all_sprites.draw(screen)
+    all_sprites.draw(screen)
 
     #below does the same thing for all the ships
     #for i in range(numCircles):
@@ -120,15 +136,16 @@ while not done:
      # enemies[i].draw(screen)
       #pygame.draw.circle(screen, MAGENTA, (circlesX[i], circlesY[i]), circlesSize[i])
 
-    player_group.draw(screen)
+    #player_group.draw(screen)
     #player.draw(screen)
     # --- Render the screen.
     pygame.display.flip()
  
     # --- Limit to 60 frames per second
-    clock.tick(40)
+    clock.tick(60)
 
-    p("{}, {}".format(player.rect.x, player.rect.y))
+    #p("{}, {}".format(player.rect.x, player.rect.y))
  
 # Close the window and quit.
 pygame.quit()
+

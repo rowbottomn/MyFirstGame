@@ -5,46 +5,43 @@
 import pygame
 
 class BasicSprite(pygame.sprite.Sprite):
-    
-  #This class represents the Player. It inherits from the "Sprite" class in Pygame.   
+  #This class represents the Player. It inherits from the "Sprite" class in Pygame. 
+  
+  #used to store the screen width and height
 
-  def __init__(self, data):
+  def __init__(self, img):
     # Call the super class constructor
+    
     super().__init__()
-    self.data = data
+    #set the width and height of the screen
+    self.WIDTH, self.HEIGHT = pygame.display.get_surface().get_size()
 
-    #lets use the data to call different setup functions depending
-    #setting instance variables to receive the values passed in the constructor call
-    self.width = data.width
-    self.height = data.height
-   
-    #load the image
-    self.image = pygame.image.load(data.img).convert_alpha()
-    #is the image the right size? I only check the width for speed's sake
-    if (self.image.get_width() != width):
-      #scale the image properly
-      self.image = pygame.transform.scale(self.image, (width, height))
-        
-    # Set the background color and set it to be transparent
-    #moved that to set_color_key() function
+    self.image = img
+    self.rect = img.get_rect()
 
-    # Fetch the rectangle object that has the dimensions of the image 
-    self.rect = self.image.get_rect()
+    self.width = self.rect.width
+    self.height = self.rect.height
 
-    def __init__(self, img):
-      # Call the super class constructor
-      super().__init__()
+    #we should probably move the coords over to center the image
+    
+
+  def setPosition(self, pos):
+    self.rect.x  = pos[0] - self.width/2
+    self.rect.y = pos[1] - self.height/2   
 
   #put all the game code in here
   def update(self):
     #added this line to allow me to put the update dunction in
     return True
 
-
+  #given the screen, draw yourself
   def draw(self, screen):
     screen.blit(self.image, self.rect)
 
-
-  def set_color_key(self, color):
-    self.color_key = color
-    self.image.set_colorkey(color)
+  #auto tries to get teh color key  
+  def set_color_key(self):
+    try:
+      self.image.set_colorkey(self.image.color_at((0,0)))
+    except pygame.error as e:
+      print(e)
+      return
