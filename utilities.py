@@ -8,7 +8,7 @@ def p(msg):
   if (DEBUG):
     print(msg)
 
-
+#circular hit detection used early on, not really needed due ot pygaqme spritegroup functions
 def distance(x1, y1, x2, y2):
   return math.sqrt((x2-x1)**2+(y2-y1)**2)
 

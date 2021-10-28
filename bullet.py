@@ -1,6 +1,6 @@
 #Bullet class!
 #Nathan Rowbottom
-#Just an example of an a bullet class
+#Just an example of an a basic bullet class
 
 import pygame
 
@@ -25,6 +25,6 @@ class Bullet(BasicSprite):
     global WIDTH, HEIGHT
     #move the bullet
     self.rect.y -= self.speed
-    #if its off the screen then remove it
+    #if its off the screen then remove it  
     if (self.rect.y > HEIGHT):
       self.kill()

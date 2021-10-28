@@ -18,6 +18,7 @@ class Explosion(BasicSprite):
     self.duration = 40
     self.speed = int(self.duration/len(images))
     self.timer = 0
+    
   #put all the game code in here
   def update(self):
     self.timer += 1
